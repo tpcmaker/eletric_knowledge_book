@@ -147,4 +147,3 @@ if __name__ == "__main__":
     except Exception as e:
         st.write("忙碌中，請稍後再試")
         st.write(e)
-
