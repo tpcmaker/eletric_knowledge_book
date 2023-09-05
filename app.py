@@ -6,7 +6,8 @@ import streamlit as st
 scopes = ["https://spreadsheets.google.com/feeds"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["cjson"], scopes)
 client = gspread.authorize(credentials)
-spreadsheet = client.open_by_key(st.secrets["sheet_key"])
+sheet_key = st.secrets["sheet_key"]
+spreadsheet = client.open_by_key(sheet_key)
 sheet_1 = spreadsheet.sheet1
 sheet_pw = spreadsheet.worksheet("ACPW")
 
@@ -142,5 +143,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        st.write("出錯了，請重試")
+        st.write(e)
 
