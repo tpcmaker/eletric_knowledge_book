@@ -26,12 +26,6 @@ def get_data():
     return data
 
 
-def get_departments_cols(data):
-    departments_cols = [i+1 for i in range(len(data[1])) if data[1][i] != ""]
-    departments_cols.insert(0, 0)
-    return departments_cols
-
-
 def get_department_rows(data, department):
     department_rows = []
     for i in range(len(data)):
@@ -106,30 +100,43 @@ def login_page():
         st.error("帳號或密碼錯誤")
 
 
+def get_department_col(data, department):
+    if department in data[1]:
+      col = data[1].index(department) + 1
+    else:
+      col = None
+    return col
+
+
 def main_page():
     st.title("知識手冊第二階段審查意見表")
-    departments_cols = get_departments_cols(st.session_state.data)
-    department_col = dict(zip(st.session_state.departments, departments_cols))[st.session_state.department]
+
+    department_col = get_department_col(st.session_state.data, st.session_state.department)  # 可能為None
     st.session_state.department_col = department_col
-    department_rows = get_department_rows(st.session_state.data, st.session_state.department)
+    department_rows = get_department_rows(st.session_state.data, st.session_state.department)  # 可能為[]
     st.session_state.department_rows = department_rows
-    department_questions = get_department_questions(st.session_state.data, department_rows)
-    department_answers = get_department_answers(st.session_state.data, department_rows, department_col)
-    answers = []
+    if (department_col != None) and (department_rows != []):
+        department_questions = get_department_questions(st.session_state.data, department_rows)
+        department_answers = get_department_answers(st.session_state.data, department_rows, department_col)
+        answers = []
 
-    if department_col != 0:
-        with st.form("my_form"):
-            for q in department_questions:
-                st.session_state.q = st.text_area(q, value=dict(zip(department_questions, department_answers))[q], height=300)
-                answers.append(st.session_state.q)
-            st.session_state.answers = answers
+        if department_col != 0:
+            with st.form("my_form"):
+                for q in department_questions:
+                    st.session_state.q = st.text_area(q, value=dict(zip(department_questions, department_answers))[q], height=300)
+                    answers.append(st.session_state.q)
+                st.session_state.answers = answers
 
-            submitted = st.form_submit_button("提交") #, on_click=sended
+                submitted = st.form_submit_button("提交") #, on_click=sended
 
-            if submitted:
-                update_answers(department_rows, department_col, answers)
+                if submitted:
+                    update_answers(department_rows, department_col, answers)
 
-                st.write("已收到您的答案，謝謝")
+                    st.write("已收到您的答案，謝謝")
+        
+    else:
+        st.info("沒有您需要回答的題目")        
+
 
 
 def main():
@@ -148,4 +155,3 @@ if __name__ == "__main__":
     except Exception as e:
         st.write("出錯了，請重試")
         st.write(e)
-
